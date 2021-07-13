@@ -20,12 +20,14 @@ void task2(void * parameters){
     while(1){ // infinite loop
         Serial.print("Task 2 counter: ");
         Serial.println(count2++);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);    
     }
 }
 /* ________________________________________Setup________________________________________ */
 void setup() {
   Serial.begin(115200);
+  
+  
   xTaskCreate(
         task1,    // Function that should be called
         "Task 1", // Name of the task (for debugging)

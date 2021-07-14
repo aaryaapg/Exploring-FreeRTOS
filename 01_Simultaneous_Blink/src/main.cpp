@@ -1,5 +1,6 @@
 /*
-* This code 
+* This code uses 2 different tasks to blink LEDs
+* For LEDs: https://circuitdigest.com/microcontroller-projects/arduino-freertos-tutorial1-creating-freertos-task-to-blink-led-in-arduino-uno
 */
 
 /* ______________________________________Libraries______________________________________ */
@@ -10,17 +11,25 @@ int count1 = 0;
 int count2 = 0;
 /* ______________________________________Functions______________________________________ */
 void task1(void * parameters){
+  pinMode(18, OUTPUT);
     while(1){ // infinite loop
         Serial.print("Task 1 counter: ");
         Serial.println(count1++);
+        digitalWrite(18,HIGH);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        digitalWrite(18,LOW);
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }
 void task2(void * parameters){
+  pinMode(19, OUTPUT);
     while(1){ // infinite loop
         Serial.print("Task 2 counter: ");
         Serial.println(count2++);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);    
+        digitalWrite(19,HIGH);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);  
+        digitalWrite(19,LOW);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);  
     }
 }
 /* ________________________________________Setup________________________________________ */

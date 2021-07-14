@@ -1,5 +1,5 @@
 /*
-* This code uses 2 different tasks to blink LEDs at different speeds
+* This code uses 2 different tasks to blink LEDs at different speeds. 
 * For LEDs: https://circuitdigest.com/microcontroller-projects/arduino-freertos-tutorial1-creating-freertos-task-to-blink-led-in-arduino-uno
 */
 

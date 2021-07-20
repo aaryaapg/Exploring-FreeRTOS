@@ -50,7 +50,9 @@ int buttonState; //Logout will be initiated if button state is HIGH
 //Tasks
 TaskHandle_t taskRFID_handle = NULL;
 TaskHandle_t taskReadSensors_handle = NULL;
+int count = 0;
 TaskHandle_t taskLogoutButton_handle = NULL;
+TaskHandle_t taskLogoutProcedure_handle = NULL;
 
 /* ______________________________________Functions______________________________________ */
 //Function to get RGB colours
@@ -61,6 +63,22 @@ void RGB_color(bool r, bool g, bool b){
   delay(1000);
 }
 /* ________________________________________Tasks________________________________________ */
+void taskLogoutProcedure(void * parameter){
+  //Execute Logout procedure
+  //Turn Antenna ON
+  rfid.PCD_AntennaOn();
+  Serial.println("Antenna is on");
+  //Clear variables
+  RFIDCode = "";
+  count = 0;
+  //Resume RFID Task
+  vTaskResume(taskRFID_handle);
+  //LED - Green
+  RGB_color(1, 0, 1); //Green - unoccupied
+  //Suspend own task
+  Serial.println("Suspending LogoutButton Task");
+  vTaskSuspend( NULL );
+}
 void taskLogoutButton(void * parameter){
   for(;;){
     buttonState = digitalRead(buttonPin);
@@ -72,6 +90,13 @@ void taskLogoutButton(void * parameter){
       }
       //Create tastLogoutProcedure
       Serial.println("Creating LogoutProcedure Task");
+      xTaskCreate(
+        taskLogoutProcedure,          /* Task function. */
+        "taskLogoutProcedure",        /* String with name of task. */
+        10000,            /* Stack size in bytes. */
+        NULL,             /* Parameter passed as input of the task */
+        1,                /* Priority of the task. */
+        &taskLogoutProcedure_handle);            /* Task handle. */
       //Suspend own task
       Serial.println("Suspending LogoutButton Task");
       vTaskSuspend( NULL );
@@ -80,8 +105,10 @@ void taskLogoutButton(void * parameter){
 }
 void taskReadSensors(void * parameter){ 
   delay(1000);
+  Serial.println("Reading Sensors");
   for(;;){
-    Serial.println("Reading Sensors");
+    Serial.print("Sensor counter: ");
+    Serial.println(count++);
     vTaskDelay(3000 / portTICK_PERIOD_MS);
   }
   //Serial.println("Ending task 2");

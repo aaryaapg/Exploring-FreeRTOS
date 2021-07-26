@@ -46,6 +46,8 @@ GND --------> GND
 //MPU6050
 #include <Wire.h> //For communication between MPU6050 and ESP32 (I2C)
 #include <Math.h>
+//RTC 
+#include <RTClib.h>
 
 /* _______________________________________Macros________________________________________ */
 //RFID
@@ -101,6 +103,13 @@ int c_state = 0; //current state
 int p_state = 0; //previous state
 int count = 0; //counting all edges
 int realcount; //Count for just low to high edges
+//RTC
+RTC_DS3231 rtc;
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+String timeStamp = "";
+String dateStamp = "";
+String dayStamp = "";
+String H = "",M = "",S = "",DD = "",MM = "",YYYY = "";
 
 /* ______________________________________Functions______________________________________ */
 //Function to get RGB colours
@@ -154,6 +163,19 @@ void Read_RawValue(uint8_t deviceAddress, uint8_t regAddress) {
   GX_raw = (((int16_t)Wire.read() << 8) | Wire.read());
   GY_raw = (((int16_t)Wire.read() << 8) | Wire.read());
   GZ_raw = (((int16_t)Wire.read() << 8) | Wire.read());
+}
+//Get timestamp properly
+void getDetailedTime() {
+  DateTime now = rtc.now();
+  (now.hour()>=10)?(H = String(now.hour())):(H = "0" + String(now.hour()));
+  (now.minute()>=10)?(M = String(now.minute())):(M = "0" + String(now.minute()));
+  (now.second()>=10)?(S = String(now.second())):(S = "0" + String(now.second()));
+  timeStamp = H +":" + M + ":" + S;
+  (now.day()>=10)?(DD = String(now.day())):(DD = "0" + String(now.day()));
+  (now.month()>=10)?(MM = String(now.month())):(MM = "0" + String(now.month()));
+  YYYY = now.year();
+  dateStamp = DD +"-" + MM + "-" + YYYY;
+  dayStamp = daysOfTheWeek[now.dayOfTheWeek()];
 }
 /* ________________________________________Tasks________________________________________ */
 void taskLogoutProcedure(void * parameter){
@@ -251,7 +273,12 @@ void taskRFID( void * parameter ){
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
       //Get login time
-      rfid.PCD_AntennaOff();  //Turn Antenna off
+      getDetailedTime();
+      Serial.print("Login Date: "); Serial.println(dateStamp);
+      Serial.print("Login Day: "); Serial.println(dayStamp);
+      Serial.print("Login Time: "); Serial.println(timeStamp);
+      //Turn Antenna off
+      rfid.PCD_AntennaOff();  
       Serial.println("Antenna Off "); //Successfully logged in
       RGB_color(0, 1, 1); //RED - occupied
       xTaskCreate(
@@ -299,6 +326,14 @@ void setup() {
   digitalWrite(GREEN,HIGH);
   digitalWrite(BLUE,HIGH);
   RGB_color(1, 0, 1); //Green - unoccupied at the start
+  //RTC
+  //Wire.begin();
+  rtc.begin();
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
+  rtc.adjust(DateTime(__DATE__, __TIME__));
   delay(1000);
   xTaskCreate(
     taskRFID,          /* Task function. */

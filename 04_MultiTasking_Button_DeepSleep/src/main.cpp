@@ -10,12 +10,12 @@ GND  -------> GND
 RST  -------> 27
 VCC  -------> 3.3V
 Pushbutton -> 22
-RGB LED          ESP32
-Red     -------> 13
-Anode   -------> 3.3V
-Green   -------> 12
-Blue    -------> 14
-MPU6050       ESP32
+RGB LED      ESP32
+Red   ------> 13
+Anode ------> 3.3V
+Green ------> 12
+Blue  ------> 14
+MPU6050      ESP32
 VCC --------> 3.3V         
 GND --------> GND 
 SCL --------> 26
@@ -24,7 +24,13 @@ XDA --------> NC
 XCL --------> NC
 AD0 --------> GND
 INT --------> NC
-
+RTCDS3231    ESP32
+32K --------> NC
+SQW --------> NC
+SCL --------> 22
+SDA --------> 21
+VCC --------> 3.3V
+GND --------> GND
 -> https://github.com/espressif/arduino-esp32/issues/595#issuecomment-413829444
 -> https://gist.github.com/SaheblalBagwan/5e538a727a5f1b0c129da36786d67159
 */
